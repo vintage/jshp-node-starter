@@ -1,0 +1,23 @@
+{
+  "name": "czatex",
+  "version": "1.0.0",
+  "private": false,
+  "scripts": {
+    "build": "babel src -d dist",
+    "serve": "node dist/index.js",
+    "start": "nodemon --exec babel-node src/index.js",
+    "prettier": "prettier --write \"./src/**/*.{js,json}\""
+  },
+  "dependencies": {
+    "dotenv": "^7.0.0",
+    "express": "^4.16.4"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.4.3",
+    "@babel/core": "^7.4.3",
+    "@babel/node": "^7.2.2",
+    "@babel/preset-env": "^7.4.3",
+    "nodemon": "^1.18.10",
+    "prettier": "^1.16.4"
+  }
+}
