@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font: 13px Helvetica, Arial;
+      }
+      form {
+        background: #000;
+        padding: 3px;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+      }
+      form input {
+        border: 0;
+        padding: 10px;
+        width: 90%;
+        margin-right: 0.5%;
+      }
+      form button {
+        width: 9%;
+        background: rgb(130, 224, 255);
+        border: none;
+        padding: 10px;
+      }
+      #messages {
+        float: left;
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        width: 80%;
+        margin-bottom: 40px;
+      }
+      #messages li {
+        padding: 5px 10px;
+      }
+      #messages li:nth-child(odd) {
+        background: #eee;
+      }
+      #users {
+        float: right;
+        width: 20%;
+        margin-bottom: 40px;
+        list-style-type: none;
+      }
+      #users li {
+        padding: 15px 10px;
+      }
+      .online-indicator {
+        width: 10px;
+        height: 10px;
+        background: green;
+        display: inline-block;
+        margin-right: 10px;
+        border-radius: 100px;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+      $(function() {
+        var socket = io()
+
+        function addMessage(message) {
+          var image_html = "";
+          if (message.image) {
+            var image_url = "static/uploads/" + message.image;
+            image_html = "<img width='100' height='100' style='float: left' src='" + image_url + "' />"
+          }
+
+          $('#messages').append(
+            "<li>" +
+              image_html +
+              "<div style='float: left; padding-left: 15px'>" +
+                "<b>" + message.content + "</b><br />" +
+                "<small>by: " + message.author + "</small><br />" +
+              "</div>" +
+              "<div style='clear: both'></div>" +
+            "</li>"
+          )
+        }
+
+        function addUser(user) {
+          $('#users').append(
+            "<li>" +
+            "<div class='online-indicator'></div>" +
+            "<b>" + user.name + "</b><br />" +
+            "</li>"
+          )
+        }
+
+        $('form').submit(function(e) {
+          e.preventDefault() // prevents page reloading
+          socket.emit('chat message', $('#message').val())
+          $('#message').val('')
+          return false
+        })
+
+        socket.on('chat message', function(message){
+          addMessage({
+            "content": message,
+            "author": "Socket"
+          })
+        });
+
+        $.get("messages", function(data) {
+          data.map(function(message) {
+            addMessage(message);
+          })
+        });
+
+        $.get("users", function(data) {
+          data.map(function(user) {
+            addUser(user);
+          })
+        });
+      })
+    </script>
+    <div>
+      <ul id="messages"></ul>
+      <ul id="users">
+        <li><h1>Online users</h1></li>
+      </ul>
+    </div>
+
+    <form action="">
+      <input id="message" autocomplete="off" />
+      <button>Send</button>
+    </form>
+  </body>
+</html>
