@@ -8,6 +8,17 @@ import MessageService from './services/message'
 const userService = new UserService(dbClient)
 const messageService = new MessageService(dbClient)
 
+function asyncHandler(route) {
+  return async (req, res, next) => {
+    try {
+      await route(req, res, next)
+    } catch (err) {
+      console.log(err)
+      res.status(500).send(err.message)
+    }
+  }
+}
+
 function getRandomName(req, res) {
   request('https://randomuser.me/api/', function(error, response, body) {
     try {
@@ -106,7 +117,7 @@ async function createMessage(req, res) {
   }
 
   const content = req.body.content
-  const image = req.files.image
+  const image = req.files ? req.files.image : null
 
   if (!content) {
     res.status(400).json({
@@ -114,7 +125,7 @@ async function createMessage(req, res) {
     })
   }
 
-  const message = await messageService.create(content, user.name)
+  const message = await messageService.create(content, user.name, image)
   res.json(message)
 }
 
@@ -165,22 +176,22 @@ async function dislikeMessage(req, res) {
 
 const router = express.Router()
 // Utils
-router.get('/random-name', getRandomName)
+router.get('/random-name', asyncHandler(getRandomName))
 
 // Auth
-router.post('/auth/signup', authSignup)
-router.post('/auth/signin', authSignin)
-router.post('/auth/signout', authSignout)
+router.post('/auth/signup', asyncHandler(authSignup))
+router.post('/auth/signin', asyncHandler(authSignin))
+router.post('/auth/signout', asyncHandler(authSignout))
 
 // Users
-router.get('/users', getUsers)
+router.get('/users', asyncHandler(getUsers))
 
 // Messages
-router.get('/messages', getMessages)
-router.post('/messages', createMessage)
-router.get('/messages/:id', getMessage)
-router.delete('/messages/:id', deleteMessage)
-router.post('/messages/:id/like', likeMessage)
-router.delete('/messages/:id/like', dislikeMessage)
+router.get('/messages', asyncHandler(getMessages))
+router.post('/messages', asyncHandler(createMessage))
+router.get('/messages/:id', asyncHandler(getMessage))
+router.delete('/messages/:id', asyncHandler(deleteMessage))
+router.post('/messages/:id/like', asyncHandler(likeMessage))
+router.delete('/messages/:id/like', asyncHandler(dislikeMessage))
 
 export default router

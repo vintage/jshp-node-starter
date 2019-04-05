@@ -1,4 +1,6 @@
 import { ObjectId } from 'mongodb'
+import fs from 'fs'
+import path from 'path'
 
 class MessageService {
   constructor(client) {
@@ -21,8 +23,20 @@ class MessageService {
     const record = {
       content: content,
       author: author,
-      image: image,
+      image: null,
       likes: [],
+    }
+
+    if (image) {
+      const hash = Date.now().toString()
+      const uploadName = `${hash}_${image.name}`
+
+      record.image = uploadName
+
+      const filePath = path.join(process.env.MEDIA_ROOT, uploadName)
+      fs.writeFile(filePath, image.data, function() {
+        console.log('File saved to', filePath)
+      })
     }
 
     await this.collection.insertOne(record)
