@@ -111,7 +111,7 @@ async function getMessage(req, res) {
 async function createMessage(req, res) {
   const user = await userService.getByToken(req.header('Authorization-Token'))
   if (!user) {
-    res.status(400).json({
+    return res.status(400).json({
       error: 'Invalid token',
     })
   }
@@ -120,7 +120,7 @@ async function createMessage(req, res) {
   const image = req.files ? req.files.image : null
 
   if (!content) {
-    res.status(400).json({
+    return res.status(400).json({
       error: 'Content cannot be empty',
     })
   }
