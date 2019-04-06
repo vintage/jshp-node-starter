@@ -138,7 +138,8 @@ async function deleteMessage(req, res) {
   }
 
   const messageId = req.params.id
-  const isDeleted = await messageService.delete(messageId, user.name)
+  const author = user.name || user.username || user.user || user.imie
+  const isDeleted = await messageService.delete(messageId, author)
   res.json({
     isDeleted: isDeleted,
   })
