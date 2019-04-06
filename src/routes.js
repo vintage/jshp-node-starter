@@ -138,7 +138,9 @@ async function deleteMessage(req, res) {
   }
 
   const messageId = req.params.id
-  const author = user.name || user.username || user.user || user.imie
+  // TODO: Refactor required
+  const nameProps = Object.keys(user).filter(key => key.indexOf('name') !== -1)
+  const author = user.name || user[nameProps.filter(prop => user[prop])[0]]
   const isDeleted = await messageService.delete(messageId, author)
   res.json({
     isDeleted: isDeleted,
